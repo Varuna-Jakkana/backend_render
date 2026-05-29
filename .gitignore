@@ -1,0 +1,7 @@
+venv/
+venv310/
+__pycache__/
+*.h5
+*.pkl
+*.pyc
+packages/
