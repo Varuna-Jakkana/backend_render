@@ -68,6 +68,9 @@ with open(soil_json_path, "r") as json_file:
 
 soil_model = model_from_json(loaded_model_json)
 soil_model.load_weights(soil_weights_path)
+crop_model = joblib.load(crop_model_path)
+
+print("✅ Crop model loaded successfully")
 
 print("✅ Soil model loaded successfully")
 
