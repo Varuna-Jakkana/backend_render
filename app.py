@@ -9,6 +9,7 @@ import numpy as np
 import requests
 import joblib
 import os
+import gdown
 
 # ==============================
 # 2. INIT APP
@@ -20,18 +21,46 @@ CORS(app)
 # 3. LOAD MODELS
 # ==============================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# ==============================
+# DOWNLOAD MODELS FROM DRIVE
+# ==============================
 
-soil_model = load_model(
-    os.path.join(BASE_DIR, "models/best_model.h5"),
-    compile=False
-)
-print("MODEL PATH:", os.path.join(BASE_DIR, "models/best_model.h5"))
+MODEL_DIR = os.path.join(BASE_DIR, "models")
 
-crop_model = joblib.load(
-    os.path.join(BASE_DIR, "models/crop_xgb_model.pkl")
-)
+if not os.path.exists(MODEL_DIR):
+    os.makedirs(MODEL_DIR)
 
-print("✅ Models loaded")
+# File paths
+soil_model_path = os.path.join(MODEL_DIR, "best_model.h5")
+crop_model_path = os.path.join(MODEL_DIR, "crop_xgb_model.pkl")
+
+# Download soil model
+if not os.path.exists(soil_model_path):
+    print("Downloading soil model...")
+    gdown.download(
+        "https://drive.google.com/uc?id=1eabiUTvnHkxtw6ejNQ4gs0pkdUYPrMks",
+        soil_model_path,
+        quiet=False,
+        fuzzy=True
+    )
+
+# Download crop model
+if not os.path.exists(crop_model_path):
+    print("Downloading crop model...")
+    gdown.download(
+        "https://drive.google.com/uc?id=1CwMckBeuBHlAXkkFr_FNlmyhmYVEX6ES",
+        crop_model_path,
+        quiet=False,
+        fuzzy=True
+    )
+
+
+try:
+    soil_model = load_model(soil_model_path, compile=False)
+    crop_model = joblib.load(crop_model_path)
+    print("✅ Models loaded successfully")
+except Exception as e:
+    print("❌ Error loading models:", str(e))
 
 # ==============================
 # 4. LABELS
