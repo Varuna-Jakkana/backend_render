@@ -3,7 +3,7 @@
 # ==============================
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from tensorflow.keras.models 
+from tensorflow.keras.models import model_from_json
 import cv2
 import numpy as np
 import requests
@@ -21,38 +21,36 @@ CORS(app)
 # 3. LOAD MODELS
 # ==============================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# ==============================
-# DOWNLOAD MODELS FROM DRIVE
-# ==============================
 
 MODEL_DIR = os.path.join(BASE_DIR, "models")
 
 if not os.path.exists(MODEL_DIR):
     os.makedirs(MODEL_DIR)
 
-# File paths
 soil_json_path = os.path.join(MODEL_DIR, "soil_model.json")
 soil_weights_path = os.path.join(MODEL_DIR, "soil_weights.weights.h5")
 crop_model_path = os.path.join(MODEL_DIR, "crop_xgb_model.pkl")
 
-# Download soil model
+# Soil JSON
 if not os.path.exists(soil_json_path):
     gdown.download(
         "https://drive.google.com/uc?id=1du_ItDvUyS22L7ssKSPhvwcw7VpfjlF8",
         soil_json_path,
-        quiet=False
+        quiet=False,
+        fuzzy=True
     )
 
+# Soil Weights
 if not os.path.exists(soil_weights_path):
     gdown.download(
         "https://drive.google.com/uc?id=1-Ybqn1PcOswJpsQ_hc5rYzwMc_BxON6t",
         soil_weights_path,
-        quiet=False
+        quiet=False,
+        fuzzy=True
     )
 
-# Download crop model
+# Crop Model
 if not os.path.exists(crop_model_path):
-    print("Downloading crop model...")
     gdown.download(
         "https://drive.google.com/uc?id=1CwMckBeuBHlAXkkFr_FNlmyhmYVEX6ES",
         crop_model_path,
@@ -60,20 +58,16 @@ if not os.path.exists(crop_model_path):
         fuzzy=True
     )
 
-
-from tensorflow.keras.models import model_from_json
-
 with open(soil_json_path, "r") as json_file:
     loaded_model_json = json_file.read()
 
 soil_model = model_from_json(loaded_model_json)
 soil_model.load_weights(soil_weights_path)
+
 crop_model = joblib.load(crop_model_path)
 
-print("✅ Crop model loaded successfully")
-
-print("✅ Soil model loaded successfully")
-
+print("✅ Soil model loaded")
+print("✅ Crop model loaded")
 # ==============================
 # 4. LABELS
 # ==============================
