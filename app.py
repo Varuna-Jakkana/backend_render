@@ -34,29 +34,25 @@ crop_model_path = os.path.join(MODEL_DIR, "crop_xgb_model.pkl")
 # Soil JSON
 if not os.path.exists(soil_json_path):
     gdown.download(
-        "https://drive.google.com/uc?id=1du_ItDvUyS22L7ssKSPhvwcw7VpfjlF8",
-        soil_json_path,
-        quiet=False,
-        fuzzy=True
-    )
+    "https://drive.google.com/uc?id=1CwMckBeuBHlAXkkFr_FNlmyhmYVEX6ES",
+    crop_model_path,
+    quiet=False
+)
 
 # Soil Weights
 if not os.path.exists(soil_weights_path):
     gdown.download(
-        "https://drive.google.com/uc?id=1-Ybqn1PcOswJpsQ_hc5rYzwMc_BxON6t",
-        soil_weights_path,
-        quiet=False,
-        fuzzy=True
-    )
-
+    "https://drive.google.com/uc?id=1CwMckBeuBHlAXkkFr_FNlmyhmYVEX6ES",
+    crop_model_path,
+    quiet=False
+)
 # Crop Model
 if not os.path.exists(crop_model_path):
     gdown.download(
-        "https://drive.google.com/uc?id=1CwMckBeuBHlAXkkFr_FNlmyhmYVEX6ES",
-        crop_model_path,
-        quiet=False,
-        fuzzy=True
-    )
+    "https://drive.google.com/uc?id=1CwMckBeuBHlAXkkFr_FNlmyhmYVEX6ES",
+    crop_model_path,
+    quiet=False
+)
 
 with open(soil_json_path, "r") as json_file:
     loaded_model_json = json_file.read()
