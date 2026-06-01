@@ -14,66 +14,45 @@ import gdown
 # ==============================
 # 2. INIT APP
 # ==============================
+# 2. INIT APP
+# ==============================
 app = Flask(__name__)
 CORS(app)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_DIR = os.path.join(BASE_DIR, "models")
 
-if not os.path.exists(MODEL_DIR):
-    os.makedirs(MODEL_DIR)
+# Soil model is stored in GitHub repo
+soil_model_path = os.path.join(BASE_DIR, "best_model_railway.h5")
 
-soil_model_path = os.path.join(MODEL_DIR, "fresh_model.h5")
-crop_model_path = os.path.join(MODEL_DIR, "crop_xgb_model.pkl")
+# Crop model downloaded from Drive
+crop_model_path = os.path.join(BASE_DIR, "crop_xgb_model.pkl")
 
-# Soil Model
-app = Flask(__name__)
-CORS(app)
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_DIR = os.path.join(BASE_DIR, "models")
-
-if not os.path.exists(MODEL_DIR):
-    os.makedirs(MODEL_DIR)
-
-soil_model_path = os.path.join(MODEL_DIR, "fresh_model.h5")
-crop_model_path = os.path.join(MODEL_DIR, "crop_xgb_model.pkl")
-
-# Soil Model
-if not os.path.exists(soil_model_path):
-    print("Downloading soil model...")
-    gdown.download(
-        "https://drive.google.com/uc?id=16TNYI0IQ5o0E0OnCM8NrVc8mT13TH4gn",
-        output=soil_model_path,
-        quiet=False
-    )
-
-print("File exists:", os.path.exists(soil_model_path))
-
-if os.path.exists(soil_model_path):
-    print("File size:", os.path.getsize(soil_model_path))
-else:
-    print("Model file was not downloaded!")
-
-# Crop Model
-if not os.path.exists(crop_model_path):
-    print("Downloading crop model...")
-    gdown.download(
-        "https://drive.google.com/uc?id=1CwMckBeuBHlAXkkFr_FNlmyhmYVEX6ES",
-        crop_model_path,
-        quiet=False
-    )
-
-print("File exists:", os.path.exists(soil_model_path))
-print("File size:", os.path.getsize(soil_model_path))
-print("Model path:", soil_model_path)
-print("Exists:", os.path.exists(soil_model_path))
-print("Size:", os.path.getsize(soil_model_path))
+# ==============================
+# LOAD SOIL MODEL
+# ==============================
+print("Loading soil model...")
+print("Soil model exists:", os.path.exists(soil_model_path))
 
 soil_model = load_model(soil_model_path, compile=False)
-crop_model = joblib.load(crop_model_path)
 
 print("✅ Soil model loaded")
+
+# ==============================
+# LOAD CROP MODEL
+# ==============================
+if not os.path.exists(crop_model_path):
+    print("Downloading crop model...")
+
+    gdown.download(
+        "https://drive.google.com/file/d/1CwMckBeuBHlAXkkFr_FNlmyhmYVEX6ES",
+        output=crop_model_path,
+        quiet=False
+    )
+
+print("Crop model exists:", os.path.exists(crop_model_path))
+
+crop_model = joblib.load(crop_model_path)
+
 print("✅ Crop model loaded")
 # ==============================
 # 4. LABELS
