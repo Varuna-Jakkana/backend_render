@@ -3,7 +3,7 @@
 # ==============================
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from tensorflow.keras.models import model_from_json
+from tensorflow.keras.models import load_model
 import cv2
 import numpy as np
 import requests
