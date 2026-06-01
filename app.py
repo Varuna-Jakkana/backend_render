@@ -17,49 +17,34 @@ import gdown
 app = Flask(__name__)
 CORS(app)
 
-# ==============================
-# 3. LOAD MODELS
-# ==============================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 MODEL_DIR = os.path.join(BASE_DIR, "models")
 
 if not os.path.exists(MODEL_DIR):
     os.makedirs(MODEL_DIR)
 
-soil_json_path = os.path.join(MODEL_DIR, "soil_model.json")
-soil_weights_path = os.path.join(MODEL_DIR, "soil_weights.weights.h5")
+soil_model_path = os.path.join(MODEL_DIR, "best_model.h5")
 crop_model_path = os.path.join(MODEL_DIR, "crop_xgb_model.pkl")
 
-# Soil JSON
-if not os.path.exists(soil_json_path):
+# Soil Model
+if not os.path.exists(soil_model_path):
+    print("Downloading soil model...")
     gdown.download(
-    "https://drive.google.com/uc?id=1du_ItDvUyS22L7ssKSPhvwcw7VpfjlF8",
-    soil_json_path,
-    quiet=False
-)
+        "https://drive.google.com/uc?id=1eabiUTvnHkxtw6ejNQ4gs0pkdUYPrMks",
+        soil_model_path,
+        quiet=False
+    )
 
-# Soil Weights
-if not os.path.exists(soil_weights_path):
-    gdown.download(
-    "https://drive.google.com/uc?id=1-Ybqn1PcOswJpsQ_hc5rYzwMc_BxON6t",
-    soil_weights_path,
-    quiet=False
-)
 # Crop Model
 if not os.path.exists(crop_model_path):
+    print("Downloading crop model...")
     gdown.download(
-    "https://drive.google.com/uc?id=1CwMckBeuBHlAXkkFr_FNlmyhmYVEX6ES",
-    crop_model_path,
-    quiet=False
-)
+        "https://drive.google.com/uc?id=1CwMckBeuBHlAXkkFr_FNlmyhmYVEX6ES",
+        crop_model_path,
+        quiet=False
+    )
 
-with open(soil_json_path, "r") as json_file:
-    loaded_model_json = json_file.read()
-
-soil_model = model_from_json(loaded_model_json)
-soil_model.load_weights(soil_weights_path)
-
+soil_model = load_model(soil_model_path, compile=False)
 crop_model = joblib.load(crop_model_path)
 
 print("✅ Soil model loaded")
