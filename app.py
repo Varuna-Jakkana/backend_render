@@ -29,7 +29,7 @@ crop_model_path = os.path.join(MODEL_DIR, "crop_xgb_model.pkl")
 # Soil Model
 if not os.path.exists(soil_model_path):
     gdown.download(
-        "https://drive.google.com/uc?id=1db8oj3fIw2MIX9UZRhUYtjHrxf3T7a4B",
+        "https://drive.google.com/file/d/1db8oj3fIw2MIX9UZRhUYtjHrxf3T7a4B",
         soil_model_path,
         quiet=False
     )
