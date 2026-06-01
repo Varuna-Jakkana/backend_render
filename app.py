@@ -35,7 +35,7 @@ crop_model_path = os.path.join(MODEL_DIR, "crop_xgb_model.pkl")
 if not os.path.exists(soil_json_path):
     gdown.download(
     "https://drive.google.com/uc?id=1du_ItDvUyS22L7ssKSPhvwcw7VpfjlF8",
-    crop_model_path,
+    soil_json_path,
     quiet=False
 )
 
@@ -43,7 +43,7 @@ if not os.path.exists(soil_json_path):
 if not os.path.exists(soil_weights_path):
     gdown.download(
     "https://drive.google.com/uc?id=1-Ybqn1PcOswJpsQ_hc5rYzwMc_BxON6t",
-    crop_model_path,
+    soil_weights_path,
     quiet=False
 )
 # Crop Model
