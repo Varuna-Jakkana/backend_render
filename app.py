@@ -23,13 +23,13 @@ MODEL_DIR = os.path.join(BASE_DIR, "models")
 if not os.path.exists(MODEL_DIR):
     os.makedirs(MODEL_DIR)
 
-soil_model_path = os.path.join(MODEL_DIR, "best_model_railway.h5")
+soil_model_path = os.path.join(MODEL_DIR, "soil_model.keras")
 crop_model_path = os.path.join(MODEL_DIR, "crop_xgb_model.pkl")
 
 # Soil Model
 if not os.path.exists(soil_model_path):
     gdown.download(
-        "https://drive.google.com/file/d/1LuTNYDmsvyCxk1INAgGQDvNJMujZq2AK/view?usp=sharing",
+        "https://drive.google.com/file/d/1k3cjFDb2EWetUNj2_aILgZtdhaBe559",
         output=soil_model_path,
         quiet=False
     )
