@@ -66,6 +66,10 @@ if not os.path.exists(crop_model_path):
 
 print("File exists:", os.path.exists(soil_model_path))
 print("File size:", os.path.getsize(soil_model_path))
+print("Model path:", soil_model_path)
+print("Exists:", os.path.exists(soil_model_path))
+print("Size:", os.path.getsize(soil_model_path))
+
 soil_model = load_model(soil_model_path, compile=False)
 crop_model = joblib.load(crop_model_path)
 
