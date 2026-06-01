@@ -23,16 +23,37 @@ MODEL_DIR = os.path.join(BASE_DIR, "models")
 if not os.path.exists(MODEL_DIR):
     os.makedirs(MODEL_DIR)
 
-soil_model_path = os.path.join(MODEL_DIR, "soil_model.keras")
+soil_model_path = os.path.join(MODEL_DIR, "fresh_model.h5")
+crop_model_path = os.path.join(MODEL_DIR, "crop_xgb_model.pkl")
+
+# Soil Model
+app = Flask(__name__)
+CORS(app)
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_DIR = os.path.join(BASE_DIR, "models")
+
+if not os.path.exists(MODEL_DIR):
+    os.makedirs(MODEL_DIR)
+
+soil_model_path = os.path.join(MODEL_DIR, "fresh_model.h5")
 crop_model_path = os.path.join(MODEL_DIR, "crop_xgb_model.pkl")
 
 # Soil Model
 if not os.path.exists(soil_model_path):
+    print("Downloading soil model...")
     gdown.download(
-        "https://drive.google.com/file/d/1k3cjFDb2EWetUNj2_aILgZtdhaBe559",
+        "https://drive.google.com/uc?id=16TNYI0IQ5o0E0OnCM8NrVc8mT13TH4gn",
         output=soil_model_path,
         quiet=False
     )
+
+print("File exists:", os.path.exists(soil_model_path))
+
+if os.path.exists(soil_model_path):
+    print("File size:", os.path.getsize(soil_model_path))
+else:
+    print("Model file was not downloaded!")
 
 # Crop Model
 if not os.path.exists(crop_model_path):
@@ -43,6 +64,8 @@ if not os.path.exists(crop_model_path):
         quiet=False
     )
 
+print("File exists:", os.path.exists(soil_model_path))
+print("File size:", os.path.getsize(soil_model_path))
 soil_model = load_model(soil_model_path, compile=False)
 crop_model = joblib.load(crop_model_path)
 
