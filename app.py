@@ -33,10 +33,11 @@ crop_model_path = os.path.join(BASE_DIR, "crop_xgb_model.pkl")
 print("Loading soil model...")
 print("Soil model exists:", os.path.exists(soil_model_path))
 
-soil_model = load_model(soil_model_path, compile=False)
+#soil_model = load_model(soil_model_path, compile=False)
 
 print("✅ Soil model loaded")
 
+print("App Started")
 # ==============================
 # LOAD CROP MODEL
 # ==============================
@@ -51,9 +52,10 @@ if not os.path.exists(crop_model_path):
 
 print("Crop model exists:", os.path.exists(crop_model_path))
 
-crop_model = joblib.load(crop_model_path)
+#crop_model = joblib.load(crop_model_path)
 
 print("✅ Crop model loaded")
+print("App started")
 # ==============================
 # 4. LABELS
 # ==============================
