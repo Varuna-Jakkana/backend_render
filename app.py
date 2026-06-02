@@ -30,12 +30,18 @@ crop_model_path = os.path.join(BASE_DIR, "crop_xgb_model.pkl")
 # ==============================
 # LOAD SOIL MODEL
 # ==============================
-print("Loading soil model...")
+
 print("Soil model exists:", os.path.exists(soil_model_path))
 
-#soil_model = load_model(soil_model_path, compile=False)
+try:
+    print("Loading soil model...")
+    soil_model = load_model(soil_model_path, compile=False)
+    print("✅ Soil model loaded")
+except Exception as e:
+    print("❌ Soil model failed:", e)
+    raise
+print("Soil model loaded")
 
-print("✅ Soil model loaded")
 
 print("App Started")
 # ==============================
@@ -44,18 +50,23 @@ print("App Started")
 if not os.path.exists(crop_model_path):
     print("Downloading crop model...")
 
-    gdown.download(
-        "https://drive.google.com/file/d/1CwMckBeuBHlAXkkFr_FNlmyhmYVEX6ES",
-        output=crop_model_path,
-        quiet=False
-    )
+    
+gdown.download(
+    "https://drive.google.com/uc?id=1CwMckBeuBHlAXkkFr_FNlmyhmYVEX6ES",
+    output=crop_model_path,
+    quiet=False
+)
 
 print("Crop model exists:", os.path.exists(crop_model_path))
 
-#crop_model = joblib.load(crop_model_path)
+try:
+    print("Loading crop model...")
+    crop_model = joblib.load(crop_model_path)
+    print("✅ Crop model loaded")
+except Exception as e:
+    print("❌ Crop model failed:", e)
+    raise
 
-print("✅ Crop model loaded")
-print("App started")
 # ==============================
 # 4. LABELS
 # ==============================
