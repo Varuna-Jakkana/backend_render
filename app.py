@@ -186,6 +186,13 @@ def get_smart_npk(soil_type, humidity, region):
     K = max(K, 10)
 
     return N, P, K
+
+
+
+@app.route('/test')
+def test():
+    print("TEST ROUTE HIT")
+    return jsonify({"status": "working"})
 # ==============================
 # 6. PREDICT ROUTE
 # ==============================
