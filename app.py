@@ -22,7 +22,7 @@ CORS(app)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Soil model is stored in GitHub repo
-soil_model_path = os.path.join(BASE_DIR, "best_model_railway.h5")
+soil_model_path = os.path.join(BASE_DIR, "soil_model_new.keras")
 
 # Crop model downloaded from Drive
 crop_model_path = os.path.join(BASE_DIR, "crop_xgb_model.pkl")
@@ -32,7 +32,15 @@ crop_model_path = os.path.join(BASE_DIR, "crop_xgb_model.pkl")
 # ==============================
 
 print("Soil model exists:", os.path.exists(soil_model_path))
+if not os.path.exists(soil_model_path):
+    print("Downloading soil model...")
 
+    gdown.download(
+        "https://drive.google.com/uc?id=1N7MES7NbqE_GIsvQe3CIooNTgdqX3gF8",
+        output=soil_model_path,
+        quiet=False
+    )
+print("Soil model exists:", os.path.exists(soil_model_path))
 try:
     print("Loading soil model...")
     soil_model = load_model(soil_model_path, compile=False)
