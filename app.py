@@ -191,6 +191,7 @@ def get_smart_npk(soil_type, humidity, region):
 # ==============================
 @app.route('/predict', methods=['POST'])
 def predict():
+    print("========== PREDICT ROUTE HIT ==========")
     global soil_model
     global crop_model
     if soil_model is None:
