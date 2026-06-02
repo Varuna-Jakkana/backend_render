@@ -198,8 +198,7 @@ def test():
 # ==============================
 @app.route('/predict', methods=['POST'])
 def predict():
-    
-        
+    print("PREDICT CALLED")
     try:
         print("========== PREDICT ROUTE HIT ==========")
         global soil_model
