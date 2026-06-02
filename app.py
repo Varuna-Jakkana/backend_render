@@ -43,7 +43,7 @@ if not os.path.exists(soil_model_path):
 print("Soil model exists:", os.path.exists(soil_model_path))
 try:
     print("Loading soil model...")
-    soil_model = load_model(soil_model_path, compile=False)
+    soil_model = None
     print("✅ Soil model loaded")
 except Exception as e:
     print("❌ Soil model failed:", e)
@@ -68,7 +68,7 @@ print("Crop model exists:", os.path.exists(crop_model_path))
 
 try:
     print("Loading crop model...")
-    crop_model = joblib.load(crop_model_path)
+    crop_model = None
     print("✅ Crop model loaded")
 except Exception as e:
     print("❌ Crop model failed:", e)
@@ -191,6 +191,19 @@ def get_smart_npk(soil_type, humidity, region):
 # ==============================
 @app.route('/predict', methods=['POST'])
 def predict():
+    global soil_model
+    global crop_model
+    if soil_model is None:
+        print("Loading soil model...")
+        soil_model = load_model(
+            soil_model_path,
+            compile=False
+        )
+    if crop_model is None:
+        print("Loading crop model...")
+        crop_model = joblib.load(
+            crop_model_path
+        )
     try:
         # --------------------------
         # IMAGE PROCESSING
