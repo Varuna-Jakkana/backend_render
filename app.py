@@ -198,21 +198,25 @@ def test():
 # ==============================
 @app.route('/predict', methods=['POST'])
 def predict():
-    print("========== PREDICT ROUTE HIT ==========")
-    global soil_model
-    global crop_model
-    if soil_model is None:
-        print("Loading soil model...")
-        soil_model = load_model(
-            soil_model_path,
-            compile=False
-        )
-    if crop_model is None:
-        print("Loading crop model...")
-        crop_model = joblib.load(
-            crop_model_path
-        )
+    
+        
     try:
+        print("========== PREDICT ROUTE HIT ==========")
+        global soil_model
+        global crop_model
+        if soil_model is None:
+            print("STEP 1 - About to load soil model")
+            soil_model = load_model(
+                soil_model_path,
+                compile=False
+            )
+            print("STEP 2 - Soil model loaded")
+        if crop_model is None:
+            print("STEP 3 - About to load crop model")
+            crop_model = joblib.load(
+                crop_model_path
+            )
+            print("STEP 4 - Crop model loaded")
         # --------------------------
         # IMAGE PROCESSING
         # --------------------------
@@ -368,6 +372,8 @@ def predict():
         })
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)})
 # ==============================
 # 7. RUN SERVER
