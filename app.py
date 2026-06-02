@@ -58,12 +58,11 @@ print("App Started")
 if not os.path.exists(crop_model_path):
     print("Downloading crop model...")
 
-    
-gdown.download(
-    "https://drive.google.com/uc?id=1CwMckBeuBHlAXkkFr_FNlmyhmYVEX6ES",
-    output=crop_model_path,
-    quiet=False
-)
+    gdown.download(
+        "https://drive.google.com/uc?id=1CwMckBeuBHlAXkkFr_FNlmyhmYVEX6ES",
+        output=crop_model_path,
+        quiet=False
+    )
 
 print("Crop model exists:", os.path.exists(crop_model_path))
 
