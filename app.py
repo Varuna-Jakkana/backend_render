@@ -245,11 +245,19 @@ def predict():
            except Exception as e:
                print("SOIL MODEL ERROR:", str(e), flush=True)
                raise
-
         if crop_model is None:
             print("STEP 4 - Loading crop model", flush=True)
-            crop_model = joblib.load(crop_model_path)
-            print("STEP 5 - Crop model loaded", flush=True)
+            try:
+                print(
+                    "Crop model size:",
+                    os.path.getsize(crop_model_path),
+                    flush=True
+                )
+                crop_model = joblib.load(crop_model_path)
+                print("STEP 5 - Crop model loaded", flush=True)
+            except Exception as e:
+                print("CROP MODEL ERROR:", str(e), flush=True)
+                raise
 
         return jsonify({
             "status": "success",
