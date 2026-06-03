@@ -198,24 +198,61 @@ def test():
 # ==============================
 @app.route('/predict', methods=['POST'])
 def predict():
-    print("PREDICT CALLED")
+    print("========== PREDICT CALLED ==========", flush=True)
+
     try:
-        print("========== PREDICT ROUTE HIT ==========")
+        # Check upload
+        if 'image' not in request.files:
+            print("ERROR: image field missing", flush=True)
+            return jsonify({"error": "No image uploaded"}), 400
+
+        file = request.files['image']
+
+        print(f"Filename: {file.filename}", flush=True)
+
+        image_bytes = file.read()
+
+        print(f"Image size: {len(image_bytes)} bytes", flush=True)
+
+        # Test OpenCV
+        image = cv2.imdecode(
+            np.frombuffer(image_bytes, np.uint8),
+            cv2.IMREAD_COLOR
+        )
+
+        if image is None:
+            print("ERROR: OpenCV failed", flush=True)
+            return jsonify({"error": "Invalid image"}), 400
+
+        print("STEP 1 - OpenCV success", flush=True)
+
+        # Test model loading
         global soil_model
         global crop_model
+
         if soil_model is None:
-            print("STEP 1 - About to load soil model")
+            print("STEP 2 - Loading soil model", flush=True)
             soil_model = load_model(
                 soil_model_path,
                 compile=False
             )
-            print("STEP 2 - Soil model loaded")
+            print("STEP 3 - Soil model loaded", flush=True)
+
         if crop_model is None:
-            print("STEP 3 - About to load crop model")
-            crop_model = joblib.load(
-                crop_model_path
-            )
-            print("STEP 4 - Crop model loaded")
+            print("STEP 4 - Loading crop model", flush=True)
+            crop_model = joblib.load(crop_model_path)
+            print("STEP 5 - Crop model loaded", flush=True)
+
+        return jsonify({
+            "status": "success",
+            "message": "Image received and models loaded"
+        })
+
+    except Exception as e:
+        print("EXCEPTION:", str(e), flush=True)
+        return jsonify({
+            "error": str(e)
+        }), 500
         # --------------------------
         # IMAGE PROCESSING
         # --------------------------
