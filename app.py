@@ -246,21 +246,29 @@ def predict():
         global soil_model
         global crop_model
         if soil_model is None:
-           print("STEP 2 - Loading soil model", flush=True)
-           try:
-               print(
-                   "Soil model size:",
-                   os.path.getsize(soil_model_path),
-                   flush=True
-               )
-               soil_model = load_model(
-                   soil_model_path,
-                   compile=False
-               )
-               print("STEP 3 - Soil model loaded", flush=True)
-           except Exception as e:
-               print("SOIL MODEL ERROR:", str(e), flush=True)
-               raise
+            print("STEP 2 - Loading soil model", flush=True)
+            print(
+                "Soil model size:",
+                os.path.getsize(soil_model_path),
+                flush=True
+            )
+            soil_model = load_model(
+                soil_model_path,
+                compile=False
+            )
+            print("STEP 3 - Soil model loaded", flush=True)
+        if crop_model is None:
+            print("STEP 4 - About to load crop model", flush=True)
+            print(
+                "Crop model size:",
+                os.path.getsize(crop_model_path),
+                flush=True
+            )
+            crop_model = joblib.load(crop_model_path)
+            print("STEP 5 - Crop model loaded", flush=True)
+        print("STEP 6 - Before soil prediction", flush=True)
+        pred = soil_model.predict(image)
+        print("STEP 7 - Soil prediction done", flush=True)
 
         return jsonify({
             "status": "success",
