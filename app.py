@@ -195,68 +195,38 @@ def test():
     return jsonify({"status": "working"})
 
 
-print("Crop model exists:", os.path.exists(crop_model_path))
 
-try:
-    print("Loading crop model...")
-
-    crop_model = joblib.load(crop_model_path)
-
-    print("✅ Crop model loaded")
-
-except Exception as e:
-    print("❌ Crop model failed:", str(e))
-    raise
 
 
 # ==============================
 # 6. PREDICT ROUTE
 # ==============================
+
 @app.route('/predict', methods=['POST'])
 def predict():
-    print("========== PREDICT CALLED ==========", flush=True)
-
     try:
-        # Check upload
+
         if 'image' not in request.files:
             return jsonify({"error": "No image uploaded"}), 400
 
         file = request.files['image']
 
-        print(f"Filename: {file.filename}", flush=True)
-
-        image_bytes = file.read()
-
-        print(f"Image size: {len(image_bytes)} bytes", flush=True)
-
-        # Decode image
         image = cv2.imdecode(
-            np.frombuffer(image_bytes, np.uint8),
+            np.frombuffer(file.read(), np.uint8),
             cv2.IMREAD_COLOR
         )
 
         if image is None:
             return jsonify({"error": "Invalid image"}), 400
 
-        print("STEP 1 - OpenCV success", flush=True)
-
         global soil_model
-        global crop_model
 
-        # Load soil model if needed
         if soil_model is None:
-            print("STEP 2 - Loading soil model", flush=True)
-
             soil_model = load_model(
                 soil_model_path,
                 compile=False
             )
 
-            print("STEP 3 - Soil model loaded", flush=True)
-
-        print("Original shape:", image.shape, flush=True)
-
-        # PREPROCESS IMAGE FOR MODEL
         image = cv2.cvtColor(
             image,
             cv2.COLOR_BGR2RGB
@@ -274,202 +244,176 @@ def predict():
             axis=0
         )
 
-        print(
-            "Processed shape:",
-            image.shape,
-            flush=True
-        )
-
-        print("STEP 4 - Before soil prediction", flush=True)
-
         pred = soil_model.predict(image)
 
-        print("STEP 5 - Soil prediction done", flush=True)
-
-        soil_classes = [
-            'black',
-            'clay',
-            'loamy',
-            'red',
-            'sandy'
-        ]
-
         soil_type = soil_classes[np.argmax(pred)]
-
-        print(
-            "Predicted soil:",
-            soil_type,
-            flush=True
-        )
 
         return jsonify({
             "soil": soil_type
         })
 
     except Exception as e:
-        print("EXCEPTION:", str(e), flush=True)
-
         return jsonify({
             "error": str(e)
         }), 500
         # --------------------------
         # IMAGE PROCESSING
         # --------------------------
-        file = request.files['image']
+        # file = request.files['image']
 
-        image = cv2.imdecode(
-            np.frombuffer(file.read(), np.uint8),
-            cv2.IMREAD_COLOR
-        )
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        image = cv2.resize(image, (224,224))
-        image = image.astype('float32') / 255.0
-        image = np.expand_dims(image, axis=0)
+        # image = cv2.imdecode(
+        #     np.frombuffer(file.read(), np.uint8),
+        #     cv2.IMREAD_COLOR
+        # )
+        # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # image = cv2.resize(image, (224,224))
+        # image = image.astype('float32') / 255.0
+        # image = np.expand_dims(image, axis=0)
 
-        # --------------------------
-        # SOIL PREDICTION
-        # --------------------------
-        pred = soil_model.predict(image)
-        soil_type = soil_classes[np.argmax(pred)]
+        # # --------------------------
+        # # SOIL PREDICTION
+        # # --------------------------
+        # pred = soil_model.predict(image)
+        # soil_type = soil_classes[np.argmax(pred)]
 
-        # --------------------------
-        # LOCATION
-        # --------------------------
-        try:
-            loc_res = requests.get("http://ip-api.com/json/", timeout=2)
-            loc_data = loc_res.json()
-            lat = loc_data['lat']
-            lon = loc_data['lon']
-        except:
-            return jsonify({
-                "error": "No internet connection. Please turn on mobile data."
-                }), 400
+        # # --------------------------
+        # # LOCATION
+        # # --------------------------
+        # try:
+        #     loc_res = requests.get("http://ip-api.com/json/", timeout=2)
+        #     loc_data = loc_res.json()
+        #     lat = loc_data['lat']
+        #     lon = loc_data['lon']
+        # except:
+        #     return jsonify({
+        #         "error": "No internet connection. Please turn on mobile data."
+        #         }), 400
 
-        # --------------------------
-        # WEATHER
-        # --------------------------
-        API_KEY = "a3ddda72a1824497fdbdbd6ed51932e5"
+        # # --------------------------
+        # # WEATHER
+        # # --------------------------
+        # API_KEY = "a3ddda72a1824497fdbdbd6ed51932e5"
 
-        try:
-            url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
-            res = requests.get(url, timeout=3)
-            data = res.json()
-            temperature = data["main"]["temp"]
-            humidity = data["main"]["humidity"]
+        # try:
+        #     url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_KEY}&units=metric"
+        #     res = requests.get(url, timeout=3)
+        #     data = res.json()
+        #     temperature = data["main"]["temp"]
+        #     humidity = data["main"]["humidity"]
         
-        except:
-            return jsonify({
-                "error": "Unable to fetch weather data. Check your internet connection."
-                }), 400
+        # except:
+        #     return jsonify({
+        #         "error": "Unable to fetch weather data. Check your internet connection."
+        #         }), 400
 
-        # --------------------------
-        # REGION
-        # --------------------------
-        def get_region(lat):
-            if lat < 15:
-                return 0
-            elif lat < 22:
-                return 3
-            elif lat < 28:
-                return 2
-            else:
-                return 1
+        # # --------------------------
+        # # REGION
+        # # --------------------------
+        # def get_region(lat):
+        #     if lat < 15:
+        #         return 0
+        #     elif lat < 22:
+        #         return 3
+        #     elif lat < 28:
+        #         return 2
+        #     else:
+        #         return 1
 
-        region = get_region(lat)
+        # region = get_region(lat)
 
-        # --------------------------
-        # NDVI
-        # --------------------------
-        ndvi_map = {
-            0: 0.75,
-            1: 0.45,
-            2: 0.85,
-            3: 0.65
-        }
-        ndvi = ndvi_map[region]
+        # # --------------------------
+        # # NDVI
+        # # --------------------------
+        # ndvi_map = {
+        #     0: 0.75,
+        #     1: 0.45,
+        #     2: 0.85,
+        #     3: 0.65
+        # }
+        # ndvi = ndvi_map[region]
 
-        # --------------------------
-        # MOISTURE
-        # --------------------------
-        if humidity > 70:
-            moisture = 70
-        elif humidity > 50:
-            moisture = 50
-        else:
-            moisture = 30
+        # # --------------------------
+        # # MOISTURE
+        # # --------------------------
+        # if humidity > 70:
+        #     moisture = 70
+        # elif humidity > 50:
+        #     moisture = 50
+        # else:
+        #     moisture = 30
 
-        # --------------------------
-        # ENCODE SOIL
-        # --------------------------
-        soil_encoded = soil_classes.index(soil_type)
+        # # --------------------------
+        # # ENCODE SOIL
+        # # --------------------------
+        # soil_encoded = soil_classes.index(soil_type)
 
-        # --------------------------
-        # ✅ SMART NPK (FIXED)
-        # --------------------------
-        N, P, K = get_smart_npk(soil_type, humidity, region)
+        # # --------------------------
+        # # ✅ SMART NPK (FIXED)
+        # # --------------------------
+        # N, P, K = get_smart_npk(soil_type, humidity, region)
 
-        print("Soil:", soil_type)
-        print("NPK:", N, P, K)
+        # print("Soil:", soil_type)
+        # print("NPK:", N, P, K)
 
-        # --------------------------
-        # FINAL INPUT
-        # --------------------------
-        input_data = [[
-            temperature,
-            humidity,
-            moisture,
-            soil_encoded,
-            region
-        ]]
+        # # --------------------------
+        # # FINAL INPUT
+        # # --------------------------
+        # input_data = [[
+        #     temperature,
+        #     humidity,
+        #     moisture,
+        #     soil_encoded,
+        #     region
+        # ]]
 
-        # --------------------------
-        # PREDICTION
-        # --------------------------
-        probs = crop_model.predict_proba(input_data)[0]
+        # # --------------------------
+        # # PREDICTION
+        # # --------------------------
+        # probs = crop_model.predict_proba(input_data)[0]
 
-        # --------------------------
-        # ✅ RULE FILTERING (FIXED)
-        # --------------------------
-        for i, crop in crop_labels.items():
+        # # --------------------------
+        # # ✅ RULE FILTERING (FIXED)
+        # # --------------------------
+        # for i, crop in crop_labels.items():
 
-            if soil_type == "sandy" and crop == "Paddy":
-                probs[i] = 0
+        #     if soil_type == "sandy" and crop == "Paddy":
+        #         probs[i] = 0
                 
-            if soil_type == "red" and crop == "Paddy":
-                probs[i] = 0
+        #     if soil_type == "red" and crop == "Paddy":
+        #         probs[i] = 0
 
-            if moisture < 40 and crop == "Sugarcane":
-                probs[i] = 0
+        #     if moisture < 40 and crop == "Sugarcane":
+        #         probs[i] = 0
 
-            if humidity < 50 and crop == "Paddy":
-                probs[i] = 0
+        #     if humidity < 50 and crop == "Paddy":
+        #         probs[i] = 0
 
-        # --------------------------
-        # TOP 3
-        # --------------------------
-        top3 = probs.argsort()[-3:][::-1]
+        # # --------------------------
+        # # TOP 3
+        # # --------------------------
+        # top3 = probs.argsort()[-3:][::-1]
 
-        results = []
-        for i in top3:
-            results.append({
-                "crop": crop_labels[i],
-                "confidence": float(round(probs[i], 2))
-            })
+        # results = []
+        # for i in top3:
+        #     results.append({
+        #         "crop": crop_labels[i],
+        #         "confidence": float(round(probs[i], 2))
+        #     })
 
-        # --------------------------
-        # RESPONSE
-        # --------------------------
-        return jsonify({
-            "soil": soil_type,
-            "temperature": temperature,
-            "humidity": humidity,
-            "crops": results
-        })
+        # # --------------------------
+        # # RESPONSE
+        # # --------------------------
+        # return jsonify({
+        #     "soil": soil_type,
+        #     "temperature": temperature,
+        #     "humidity": humidity,
+        #     "crops": results
+        # })
 
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": str(e)})
+    # except Exception as e:
+    #     import traceback
+    #     traceback.print_exc()
+    #     return jsonify({"error": str(e)})
 # ==============================
 # 7. RUN SERVER
 # ==============================
