@@ -193,6 +193,22 @@ def get_smart_npk(soil_type, humidity, region):
 def test():
     print("TEST ROUTE HIT")
     return jsonify({"status": "working"})
+
+
+print("Crop model exists:", os.path.exists(crop_model_path))
+
+try:
+    print("Loading crop model...")
+
+    crop_model = joblib.load(crop_model_path)
+
+    print("✅ Crop model loaded")
+
+except Exception as e:
+    print("❌ Crop model failed:", str(e))
+    raise
+
+
 # ==============================
 # 6. PREDICT ROUTE
 # ==============================
@@ -245,19 +261,6 @@ def predict():
            except Exception as e:
                print("SOIL MODEL ERROR:", str(e), flush=True)
                raise
-        if crop_model is None:
-            print("STEP 4 - Loading crop model", flush=True)
-            try:
-                print(
-                    "Crop model size:",
-                    os.path.getsize(crop_model_path),
-                    flush=True
-                )
-                crop_model = joblib.load(crop_model_path)
-                print("STEP 5 - Crop model loaded", flush=True)
-            except Exception as e:
-                print("CROP MODEL ERROR:", str(e), flush=True)
-                raise
 
         return jsonify({
             "status": "success",
