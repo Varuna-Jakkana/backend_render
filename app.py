@@ -203,7 +203,6 @@ def test():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-
         if 'image' not in request.files:
             return jsonify({"error": "No image uploaded"}), 400
 
@@ -346,9 +345,10 @@ def predict():
         # --------------------------
         # PREDICTION
         # --------------------------
-       print("Before crop model load")
-       global crop_model
-       if crop_model is None:
+        print("Before crop model load")
+
+        global crop_model
+        if crop_model is None:
            crop_model = joblib.load(crop_model_path)
         print("Crop model loaded")
         print("Before predict_proba")
@@ -361,7 +361,7 @@ def predict():
         for i, crop in crop_labels.items():
 
             if soil_type == "sandy" and crop == "Paddy":
-                probs[i] = 0
+              probs[i] = 0
                 
             if soil_type == "red" and crop == "Paddy":
                 probs[i] = 0
