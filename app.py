@@ -229,14 +229,22 @@ def predict():
         # Test model loading
         global soil_model
         global crop_model
-
         if soil_model is None:
-            print("STEP 2 - Loading soil model", flush=True)
-            soil_model = load_model(
-                soil_model_path,
-                compile=False
-            )
-            print("STEP 3 - Soil model loaded", flush=True)
+           print("STEP 2 - Loading soil model", flush=True)
+           try:
+               print(
+                   "Soil model size:",
+                   os.path.getsize(soil_model_path),
+                   flush=True
+               )
+               soil_model = load_model(
+                   soil_model_path,
+                   compile=False
+               )
+               print("STEP 3 - Soil model loaded", flush=True)
+           except Exception as e:
+               print("SOIL MODEL ERROR:", str(e), flush=True)
+               raise
 
         if crop_model is None:
             print("STEP 4 - Loading crop model", flush=True)
