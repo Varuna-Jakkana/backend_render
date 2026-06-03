@@ -209,6 +209,10 @@ def predict():
         if 'image' not in request.files:
             return jsonify({"error": "No image uploaded"}), 400
 
+        # --------------------------
+        # IMAGE PROCESSING
+        # --------------------------
+
         file = request.files['image']
 
         image = cv2.imdecode(
@@ -248,36 +252,9 @@ def predict():
 
         soil_type = soil_classes[np.argmax(pred)]
 
-        return jsonify({
-            "soil": soil_type
-        })
+      
 
-    except Exception as e:
-        return jsonify({
-            "error": str(e)
-        }), 500
-
-        # --------------------------
-        # IMAGE PROCESSING
-        # --------------------------
-
-        file = request.files['image']
-
-        image = cv2.imdecode(
-            np.frombuffer(file.read(), np.uint8),
-            cv2.IMREAD_COLOR
-        )
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        image = cv2.resize(image, (224,224))
-        image = image.astype('float32') / 255.0
-        image = np.expand_dims(image, axis=0)
-
-        # --------------------------
-        # SOIL PREDICTION
-        # --------------------------
-        pred = soil_model.predict(image)
-        soil_type = soil_classes[np.argmax(pred)]
-
+        
         # --------------------------
         # LOCATION
         #--------------------------
@@ -371,6 +348,9 @@ def predict():
         # --------------------------
         # PREDICTION
         # --------------------------
+        global crop_model
+        if crop_model is None:
+            crop_model = joblib.load(crop_model_path)
         probs = crop_model.predict_proba(input_data)[0]
 
         # # --------------------------
