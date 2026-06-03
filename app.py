@@ -14,8 +14,6 @@ import gdown
 # ==============================
 # 2. INIT APP
 # ==============================
-# 2. INIT APP
-# ==============================
 app = Flask(__name__)
 CORS(app)
 
@@ -348,10 +346,14 @@ def predict():
         # --------------------------
         # PREDICTION
         # --------------------------
-        global crop_model
-        if crop_model is None:
-            crop_model = joblib.load(crop_model_path)
+       print("Before crop model load")
+       global crop_model
+       if crop_model is None:
+           crop_model = joblib.load(crop_model_path)
+        print("Crop model loaded")
+        print("Before predict_proba")
         probs = crop_model.predict_proba(input_data)[0]
+        print("After predict_proba")
 
         # # --------------------------
         # # ✅ RULE FILTERING (FIXED)
