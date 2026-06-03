@@ -219,7 +219,6 @@ def predict():
     try:
         # Check upload
         if 'image' not in request.files:
-            print("ERROR: image field missing", flush=True)
             return jsonify({"error": "No image uploaded"}), 400
 
         file = request.files['image']
@@ -230,53 +229,86 @@ def predict():
 
         print(f"Image size: {len(image_bytes)} bytes", flush=True)
 
-        # Test OpenCV
+        # Decode image
         image = cv2.imdecode(
             np.frombuffer(image_bytes, np.uint8),
             cv2.IMREAD_COLOR
         )
 
         if image is None:
-            print("ERROR: OpenCV failed", flush=True)
             return jsonify({"error": "Invalid image"}), 400
 
         print("STEP 1 - OpenCV success", flush=True)
 
-        # Test model loading
         global soil_model
         global crop_model
+
+        # Load soil model if needed
         if soil_model is None:
             print("STEP 2 - Loading soil model", flush=True)
-            print(
-                "Soil model size:",
-                os.path.getsize(soil_model_path),
-                flush=True
-            )
+
             soil_model = load_model(
                 soil_model_path,
                 compile=False
             )
+
             print("STEP 3 - Soil model loaded", flush=True)
-        if crop_model is None:
-            print("STEP 4 - About to load crop model", flush=True)
-            print(
-                "Crop model size:",
-                os.path.getsize(crop_model_path),
-                flush=True
-            )
-            crop_model = joblib.load(crop_model_path)
-            print("STEP 5 - Crop model loaded", flush=True)
-        print("STEP 6 - Before soil prediction", flush=True)
+
+        print("Original shape:", image.shape, flush=True)
+
+        # PREPROCESS IMAGE FOR MODEL
+        image = cv2.cvtColor(
+            image,
+            cv2.COLOR_BGR2RGB
+        )
+
+        image = cv2.resize(
+            image,
+            (224, 224)
+        )
+
+        image = image.astype("float32") / 255.0
+
+        image = np.expand_dims(
+            image,
+            axis=0
+        )
+
+        print(
+            "Processed shape:",
+            image.shape,
+            flush=True
+        )
+
+        print("STEP 4 - Before soil prediction", flush=True)
+
         pred = soil_model.predict(image)
-        print("STEP 7 - Soil prediction done", flush=True)
+
+        print("STEP 5 - Soil prediction done", flush=True)
+
+        soil_classes = [
+            'black',
+            'clay',
+            'loamy',
+            'red',
+            'sandy'
+        ]
+
+        soil_type = soil_classes[np.argmax(pred)]
+
+        print(
+            "Predicted soil:",
+            soil_type,
+            flush=True
+        )
 
         return jsonify({
-            "status": "success",
-            "message": "Image received and models loaded"
+            "soil": soil_type
         })
 
     except Exception as e:
         print("EXCEPTION:", str(e), flush=True)
+
         return jsonify({
             "error": str(e)
         }), 500
