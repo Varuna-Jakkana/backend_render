@@ -63,6 +63,11 @@ if not os.path.exists(crop_model_path):
     )
 
 print("Crop model exists:", os.path.exists(crop_model_path))
+print(
+    "Crop model size:",
+    round(os.path.getsize(crop_model_path) / (1024 * 1024), 2),
+    "MB"
+)
 
 try:
     print("Loading crop model...")
@@ -249,8 +254,7 @@ def predict():
 
         soil_type = soil_classes[np.argmax(pred)]
 
-      
-
+        
         
         # --------------------------
         # LOCATION
