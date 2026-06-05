@@ -345,16 +345,7 @@ def predict():
             soil_encoded,
             region
         ]]
-
-        # --------------------------
-        # PREDICTION
-        # --------------------------
-        print("Before crop model load")
-
-        global crop_model
-        if crop_model is None:
-           crop_model = joblib.load(crop_model_path)
-        print("Crop model loaded")
+        print("Input data:", input_data)
         print("Before predict_proba")
         probs = crop_model.predict_proba(input_data)[0]
         print("After predict_proba")
