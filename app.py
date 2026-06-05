@@ -41,12 +41,14 @@ if not os.path.exists(soil_model_path):
 print("Soil model exists:", os.path.exists(soil_model_path))
 try:
     print("Loading soil model...")
-    soil_model = None
+    soil_model = load_model(
+        soil_model_path,
+        compile=False
+    )
     print("✅ Soil model loaded")
 except Exception as e:
     print("❌ Soil model failed:", e)
     raise
-print("Soil model loaded")
 
 
 print("App Started")
@@ -71,7 +73,7 @@ print(
 
 try:
     print("Loading crop model...")
-    crop_model = None
+    crop_model = joblib.load(crop_model_path)
     print("✅ Crop model loaded")
 except Exception as e:
     print("❌ Crop model failed:", e)
@@ -225,14 +227,6 @@ def predict():
         if image is None:
             return jsonify({"error": "Invalid image"}), 400
 
-        global soil_model
-
-        if soil_model is None:
-            soil_model = load_model(
-                soil_model_path,
-                compile=False
-            )
-
         image = cv2.cvtColor(
             image,
             cv2.COLOR_BGR2RGB
@@ -345,10 +339,7 @@ def predict():
             soil_encoded,
             region
         ]]
-        print("Input data:", input_data)
-        print("Before predict_proba")
         probs = crop_model.predict_proba(input_data)[0]
-        print("After predict_proba")
 
         # # --------------------------
         # # ✅ RULE FILTERING (FIXED)
