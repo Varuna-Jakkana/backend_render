@@ -36,15 +36,12 @@ if not os.path.exists(soil_model_path):
     gdown.download(
         "https://drive.google.com/uc?id=1N7MES7NbqE_GIsvQe3CIooNTgdqX3gF8",
         output=soil_model_path,
-        quiet=False
+        quiet=False,
     )
 print("Soil model exists:", os.path.exists(soil_model_path))
 try:
     print("Loading soil model...")
-    soil_model = load_model(
-        soil_model_path,
-        compile=False
-    )
+    soil_model = load_model(soil_model_path, compile=False)
     print("✅ Soil model loaded")
 except Exception as e:
     print("❌ Soil model failed:", e)
@@ -61,14 +58,12 @@ if not os.path.exists(crop_model_path):
     gdown.download(
         "https://drive.google.com/uc?id=1CwMckBeuBHlAXkkFr_FNlmyhmYVEX6ES",
         output=crop_model_path,
-        quiet=False
+        quiet=False,
     )
 
 print("Crop model exists:", os.path.exists(crop_model_path))
 print(
-    "Crop model size:",
-    round(os.path.getsize(crop_model_path) / (1024 * 1024), 2),
-    "MB"
+    "Crop model size:", round(os.path.getsize(crop_model_path) / (1024 * 1024), 2), "MB"
 )
 
 try:
@@ -82,7 +77,7 @@ except Exception as e:
 # ==============================
 # 4. LABELS
 # ==============================
-soil_classes = ['black', 'clay', 'loamy', 'red', 'sandy']
+soil_classes = ["black", "clay", "loamy", "red", "sandy"]
 
 crop_labels = {
     0: "Barley",
@@ -129,15 +124,17 @@ crop_labels = {
     41: "Banana",
     42: "Rapeseed",
     43: "Jute",
-    44: "Arecanut"
+    44: "Arecanut",
 }
+
 
 # ==============================
 # 5. HOME ROUTE
 # ==============================
-@app.route('/')
+@app.route("/")
 def home():
     return "✅ Backend Running with AI + Weather"
+
 
 def get_smart_npk(soil_type, humidity, region):
 
@@ -149,7 +146,7 @@ def get_smart_npk(soil_type, humidity, region):
         "red": [40, 30, 30],
         "sandy": [20, 20, 20],
         "loamy": [60, 50, 50],
-        "clay": [70, 60, 60]
+        "clay": [70, 60, 60],
     }
 
     N, P, K = base_npk.get(soil_type, [50, 40, 40])
@@ -193,75 +190,61 @@ def get_smart_npk(soil_type, humidity, region):
     return N, P, K
 
 
-
-@app.route('/test')
+@app.route("/test")
 def test():
     print("TEST ROUTE HIT")
     return jsonify({"status": "working"})
-
-
-
 
 
 # ==============================
 # 6. PREDICT ROUTE
 # ==============================
 
-@app.route('/predict', methods=['POST'])
+
+@app.route("/predict", methods=["POST"])
 def predict():
     try:
-        if 'image' not in request.files:
+        if "image" not in request.files:
             return jsonify({"error": "No image uploaded"}), 400
 
         # --------------------------
         # IMAGE PROCESSING
         # --------------------------
 
-        file = request.files['image']
+        file = request.files["image"]
 
-        image = cv2.imdecode(
-            np.frombuffer(file.read(), np.uint8),
-            cv2.IMREAD_COLOR
-        )
+        image = cv2.imdecode(np.frombuffer(file.read(), np.uint8), cv2.IMREAD_COLOR)
 
         if image is None:
             return jsonify({"error": "Invalid image"}), 400
 
-        image = cv2.cvtColor(
-            image,
-            cv2.COLOR_BGR2RGB
-        )
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-        image = cv2.resize(
-            image,
-            (224, 224)
-        )
+        image = cv2.resize(image, (224, 224))
 
         image = image.astype("float32") / 255.0
 
-        image = np.expand_dims(
-            image,
-            axis=0
-        )
+        image = np.expand_dims(image, axis=0)
 
         pred = soil_model.predict(image)
 
         soil_type = soil_classes[np.argmax(pred)]
 
-        
-        
         # --------------------------
         # LOCATION
-        #--------------------------
+        # --------------------------
         try:
             loc_res = requests.get("http://ip-api.com/json/", timeout=2)
             loc_data = loc_res.json()
-            lat = loc_data['lat']
-            lon = loc_data['lon']
+            lat = loc_data["lat"]
+            lon = loc_data["lon"]
         except:
-            return jsonify({
-                "error": "No internet connection. Please turn on mobile data."
-                }), 400
+            return (
+                jsonify(
+                    {"error": "No internet connection. Please turn on mobile data."}
+                ),
+                400,
+            )
 
         # --------------------------
         # WEATHER
@@ -274,15 +257,20 @@ def predict():
             data = res.json()
             temperature = data["main"]["temp"]
             humidity = data["main"]["humidity"]
-        
+
         except:
-            return jsonify({
-                "error": "Unable to fetch weather data. Check your internet connection."
-                }), 400
+            return (
+                jsonify(
+                    {
+                        "error": "Unable to fetch weather data. Check your internet connection."
+                    }
+                ),
+                400,
+            )
 
         # --------------------------
         # REGION
-        #--------------------------
+        # --------------------------
         def get_region(lat):
             if lat < 15:
                 return 0
@@ -298,12 +286,7 @@ def predict():
         # --------------------------
         # NDVI
         # --------------------------
-        ndvi_map = {
-            0: 0.75,
-            1: 0.45,
-            2: 0.85,
-            3: 0.65
-        }
+        ndvi_map = {0: 0.75, 1: 0.45, 2: 0.85, 3: 0.65}
         ndvi = ndvi_map[region]
 
         # --------------------------
@@ -332,13 +315,7 @@ def predict():
         # # --------------------------
         # # FINAL INPUT
         # # --------------------------
-        input_data = [[
-            temperature,
-            humidity,
-            moisture,
-            soil_encoded,
-            region
-        ]]
+        input_data = [[temperature, humidity, moisture, soil_encoded, region]]
         probs = crop_model.predict_proba(input_data)[0]
 
         # # --------------------------
@@ -347,8 +324,8 @@ def predict():
         for i, crop in crop_labels.items():
 
             if soil_type == "sandy" and crop == "Paddy":
-              probs[i] = 0
-                
+                probs[i] = 0
+
             if soil_type == "red" and crop == "Paddy":
                 probs[i] = 0
 
@@ -365,30 +342,38 @@ def predict():
 
         results = []
         for i in top3:
-            results.append({
-                "crop": crop_labels[i],
-                "confidence": float(round(probs[i], 2))
-            })
+            results.append(
+                {"crop": crop_labels[i], "confidence": float(round(probs[i], 2))}
+            )
 
         # # --------------------------
         # # RESPONSE
         # # --------------------------
-        return jsonify({
-            "soil": soil_type,
-            "temperature": temperature,
-            "humidity": humidity,
-            "crops": results
-        })
+        return jsonify(
+            {
+                "soil": soil_type,
+                "temperature": temperature,
+                "humidity": humidity,
+                "latitude": lat,
+                "longitude": lon,
+                "region": region,
+                "moisture": moisture,
+                "N": N,
+                "P": P,
+                "K": K,
+                "crops": results,
+            }
+        )
 
     except Exception as e:
         import traceback
+
         traceback.print_exc()
         return jsonify({"error": str(e)})
+
+
 # ==============================
 # 7. RUN SERVER
 # ==============================
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
-
-
-        
